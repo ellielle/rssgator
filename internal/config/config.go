@@ -77,6 +77,8 @@ func (cfg *Config) SetUser() error {
 	return nil
 }
 
+// write is a helper function that gets the correct file path for the config
+// and writes it
 func write(cfg *Config) error {
 	filePath, err := getConfigPath()
 	if err != nil {
