@@ -62,14 +62,9 @@ func getConfigPath() (string, error) {
 }
 
 // SetUser sets the current user of the database and saves it to the config
-func (cfg *Config) SetUser() error {
-	user, err := os.Hostname()
-	if err != nil {
-		fmt.Println(err)
-	}
+func (cfg *Config) SetUser(user string) error {
 	cfg.CurrentUserName = user
-
-	err = write(cfg)
+	err := write(cfg)
 	if err != nil {
 		return err
 	}
@@ -77,8 +72,7 @@ func (cfg *Config) SetUser() error {
 	return nil
 }
 
-// write is a helper function that gets the correct file path for the config
-// and writes it
+// write gets the correct file path for the config and writes the config to file
 func write(cfg *Config) error {
 	filePath, err := getConfigPath()
 	if err != nil {

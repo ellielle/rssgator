@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/ellielle/rssgator/internal/config"
 )
@@ -11,22 +13,38 @@ type state struct {
 }
 
 type command struct {
-	name      string
-	arguments []string
+	Name      string
+	Arguments []string
+}
+
+type commands struct {
+	registeredCommands map[string]func(*state, command) error
 }
 
 func main() {
+	args := os.Args
+	if len(args) < 2 {
+		log.Fatal("Usage: cli <command> [args...]")
+	}
 	cfg, err := config.Read()
 	if err != nil {
 		fmt.Println(err)
 	}
-	cfg.SetUser()
+	programState := state{
+		cfg: &cfg,
+	}
+	coms := commands{
+		registeredCommands: make(map[string]func(*state, command) error),
+	}
+	coms.register("login", handlerLogin)
 
-	cfg, err = config.Read()
-	fmt.Printf("%v", cfg)
-}
+	//
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
 
-func handlerLogin(st *state, cmd command) error {
+	err = coms.run(&programState, command{Name: cmdName, Arguments: cmdArgs})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return nil
 }
