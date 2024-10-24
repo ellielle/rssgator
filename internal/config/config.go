@@ -35,7 +35,6 @@ func Read() (Config, error) {
 	if err != nil {
 		return Config{}, errors.New("error unmarshaling config")
 	}
-
 	return cfg, nil
 }
 
@@ -48,7 +47,6 @@ func createConfigFile() error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -68,7 +66,6 @@ func (cfg *Config) SetUser(user string) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 

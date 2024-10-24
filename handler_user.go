@@ -65,7 +65,6 @@ func handlerReset(st *state, cmd command) error {
 		return err
 	}
 	fmt.Println("users table successfully reset")
-
 	return nil
 }
 
@@ -81,11 +80,9 @@ func handlerGetUsers(st *state, _ command) error {
 		if user == st.cfg.CurrentUserName {
 			fmt.Printf("%s (current)\n", user)
 		} else {
-
 			fmt.Println(user)
 		}
 	}
-
 	return nil
 }
 
@@ -100,6 +97,5 @@ func (c *commands) run(s *state, cmd command) error {
 	if !ok {
 		log.Fatalf("%s is not a command", cmd.Name)
 	}
-
 	return f(s, cmd)
 }
