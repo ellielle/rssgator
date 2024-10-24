@@ -13,6 +13,8 @@ import (
 	"github.com/ellielle/rssgator/internal/database"
 )
 
+// handlerLogin handles the login command
+// will log a user in if they have been registered
 func handlerLogin(st *state, cmd command) error {
 	if len(cmd.Arguments) == 0 {
 		return errors.New("login requires a username")
@@ -30,6 +32,8 @@ func handlerLogin(st *state, cmd command) error {
 	return nil
 }
 
+// handlerRegister handles the register command
+// adds a user to the database
 func handlerRegister(st *state, cmd command) error {
 	if len(cmd.Arguments) == 0 {
 		return errors.New("register requires a username")
@@ -53,6 +57,8 @@ func handlerRegister(st *state, cmd command) error {
 	return nil
 }
 
+// handlerReset handles the database command
+// resets the data in the database so it's clean for tests
 func handlerReset(st *state, cmd command) error {
 	err := st.db.ResetDatabase(context.Background())
 	if err != nil {
@@ -63,6 +69,8 @@ func handlerReset(st *state, cmd command) error {
 	return nil
 }
 
+// handlerGetUsers handles getting a list of users
+// and indicates the currently logged in user
 func handlerGetUsers(st *state, _ command) error {
 	users, err := st.db.GetUsers(context.Background())
 	if err != nil {
