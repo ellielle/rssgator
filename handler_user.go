@@ -53,6 +53,34 @@ func handlerRegister(st *state, cmd command) error {
 	return nil
 }
 
+func handlerReset(st *state, cmd command) error {
+	err := st.db.ResetDatabase(context.Background())
+	if err != nil {
+		return err
+	}
+	fmt.Println("users table successfully reset")
+
+	return nil
+}
+
+func handlerGetUsers(st *state, _ command) error {
+	users, err := st.db.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, user := range users {
+		if user == st.cfg.CurrentUserName {
+			fmt.Printf("%s (current)\n", user)
+		} else {
+
+			fmt.Println(user)
+		}
+	}
+
+	return nil
+}
+
 // register adds commands to the commands struct
 func (c *commands) register(name string, f func(*state, command) error) {
 	c.registeredCommands[name] = f
