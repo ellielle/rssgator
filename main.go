@@ -48,6 +48,7 @@ func main() {
 	coms.register("register", handlerRegister)
 	coms.register("reset", handlerReset)
 	coms.register("users", handlerGetUsers)
+	coms.register("agg", handlerAggregate)
 
 	cmdName := os.Args[1]
 	cmdArgs := os.Args[2:]
