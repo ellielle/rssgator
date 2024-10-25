@@ -8,6 +8,11 @@ import (
 	"html"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/google/uuid"
+
+	"github.com/ellielle/rssgator/internal/database"
 )
 
 type RSSFeed struct {
@@ -31,13 +36,51 @@ func handlerAggregate(st *state, cmd command) error {
 	//  	fmt.Println("agg requires a URL as an argument")
 	//  	os.Exit(1)
 	//  }
-
 	feed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
 	if err != nil {
 		return errors.New("unable to fetch feed")
 	}
 	unescapeData(feed)
 	fmt.Print(feed)
+	return nil
+}
+
+func handlerAddFeed(st *state, cmd command) error {
+	// Arguments[0] is the name of the feed, Arguments[1] is the URL of the feed
+	if len(cmd.Arguments) < 2 {
+		fmt.Println("addfeed requires a name and a URL")
+	}
+	user, err := st.db.GetUserByName(context.Background(), st.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+	_, err = st.db.CreateFeed(context.Background(), database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      cmd.Arguments[0],
+		Url:       cmd.Arguments[1],
+		UserID:    user.ID})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func handlerGetFeeds(st *state, cmd command) error {
+	feeds, err := st.db.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, feed := range feeds {
+		user, err := st.db.GetUserCreatedFeed(context.Background(), feed.UserID)
+		if err != nil {
+			return err
+		}
+		fmt.Println(feed.Name)
+		fmt.Println(feed.Url)
+		fmt.Println(user)
+	}
 	return nil
 }
 
