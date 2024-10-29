@@ -15,3 +15,7 @@ SELECT * FROM feeds;
 -- name: GetUserCreatedFeed :one
 SELECT name FROM users 
 WHERE id = $1;
+
+-- name: GetFeedByUrl :one
+SELECT * FROM feeds
+WHERE url = $1; 
