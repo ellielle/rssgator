@@ -14,7 +14,8 @@ type Config struct {
 
 const configFile = ".gatorconfig.json"
 
-const DBURL = "postgres://example"
+// local database URI to initialize with
+const DBURL = "postgres://lily:snowmogchocobo@localhost:5432/gator?sslmode=disable"
 
 // Read opens the config file and parses the content
 // into a Config struct that is returned

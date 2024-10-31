@@ -31,6 +31,7 @@ type RSSItem struct {
 	PubDate     string `xml:"pubDate"`
 }
 
+// handlerAggregate fetches a feed and unescapes the feed string
 func handlerAggregate(st *state, cmd command) error {
 	//  if len(cmd.Arguments) == 0 {
 	//  	fmt.Println("agg requires a URL as an argument")
@@ -45,6 +46,7 @@ func handlerAggregate(st *state, cmd command) error {
 	return nil
 }
 
+// handlerAddFeed adds a feed to a user's follow list
 func handlerAddFeed(st *state, cmd command) error {
 	// Arguments[0] is the name of the feed, Arguments[1] is the URL of the feed
 	if len(cmd.Arguments) < 2 {
@@ -54,7 +56,7 @@ func handlerAddFeed(st *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	_, err = st.db.CreateFeed(context.Background(), database.CreateFeedParams{
+	feed, err := st.db.CreateFeed(context.Background(), database.CreateFeedParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -64,9 +66,21 @@ func handlerAddFeed(st *state, cmd command) error {
 	if err != nil {
 		return err
 	}
+	// create a feed_follow for the user automatically
+	_, err = st.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
+// handlerGetFeeds returns all feeds created
 func handlerGetFeeds(st *state, cmd command) error {
 	feeds, err := st.db.GetFeeds(context.Background())
 	if err != nil {
@@ -84,6 +98,8 @@ func handlerGetFeeds(st *state, cmd command) error {
 	return nil
 }
 
+// unescapeData is a helper function that unescapes
+// the feed's title, description and items
 func unescapeData(feed *RSSFeed) error {
 	feed.Channel.Title = html.UnescapeString(feed.Channel.Title)
 	feed.Channel.Description = html.UnescapeString(feed.Channel.Description)

@@ -11,6 +11,7 @@ import (
 	"github.com/ellielle/rssgator/internal/database"
 )
 
+// handlerAddFollow adds a followed feed to a logged in user
 func handlerAddFollow(st *state, cmd command) error {
 	if len(cmd.Arguments) < 1 {
 		fmt.Println("following requires a url")
@@ -23,14 +24,40 @@ func handlerAddFollow(st *state, cmd command) error {
 	if err != nil {
 		return errors.New(err.Error())
 	}
-	ff, err := st.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+	// feed_follow isn't necessary here, _ it
+	_, err = st.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		UserID:    user.ID,
 		FeedID:    feed.ID,
 	})
-	fmt.Printf("%s\n%s", feed.Name, st.cfg.CurrentUserName)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	fmt.Println("Feed follow created:")
+
+	return nil
+}
+
+// handlerFollowing returns the names of all feeds the logged
+// in user is following
+func handlerFollowing(st *state, cmd command) error {
+	user, err := st.db.GetUserByName(context.Background(), st.cfg.CurrentUserName)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	ff, err := st.db.GetFeedFollowsForUser(context.Background(), user.ID)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	for _, feed := range ff {
+		f, err := st.db.GetFeedById(context.Background(), feed.FeedID)
+		if err != nil {
+			return errors.New(err.Error())
+		}
+		fmt.Println(f.Name)
+	}
 
 	return nil
 }

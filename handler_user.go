@@ -46,6 +46,7 @@ func handlerRegister(st *state, cmd command) error {
 	})
 	if err != nil {
 		fmt.Println("error: user already exists")
+		fmt.Println(err)
 		os.Exit(1)
 	}
 	// set current user in config to newly created user

@@ -19,3 +19,7 @@ WHERE id = $1;
 -- name: GetFeedByUrl :one
 SELECT * FROM feeds
 WHERE url = $1; 
+
+-- name: GetFeedById :one
+SELECT * FROM feeds
+WHERE id = $1;
