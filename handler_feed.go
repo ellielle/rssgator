@@ -47,7 +47,7 @@ func handlerAggregate(st *state, cmd command) error {
 }
 
 // handlerAddFeed adds a feed to a user's follow list
-func handlerAddFeed(st *state, cmd command) error {
+func handlerAddFeed(st *state, cmd command, user database.User) error {
 	// Arguments[0] is the name of the feed, Arguments[1] is the URL of the feed
 	if len(cmd.Arguments) < 2 {
 		fmt.Println("addfeed requires a name and a URL")

@@ -12,7 +12,7 @@ import (
 )
 
 // handlerAddFollow adds a followed feed to a logged in user
-func handlerAddFollow(st *state, cmd command) error {
+func handlerAddFollow(st *state, cmd command, user database.User) error {
 	if len(cmd.Arguments) < 1 {
 		fmt.Println("following requires a url")
 	}
@@ -42,7 +42,7 @@ func handlerAddFollow(st *state, cmd command) error {
 
 // handlerFollowing returns the names of all feeds the logged
 // in user is following
-func handlerFollowing(st *state, cmd command) error {
+func handlerFollowing(st *state, cmd command, user database.User) error {
 	user, err := st.db.GetUserByName(context.Background(), st.cfg.CurrentUserName)
 	if err != nil {
 		return errors.New(err.Error())
