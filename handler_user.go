@@ -17,7 +17,7 @@ import (
 // will log a user in if they have been registered
 func handlerLogin(st *state, cmd command) error {
 	if len(cmd.Arguments) == 0 {
-		return errors.New("login requires a username")
+		return errors.New("usage: cmd login <username>")
 	}
 
 	// search for the user in the database, return an error if they don't exist
@@ -36,7 +36,7 @@ func handlerLogin(st *state, cmd command) error {
 // adds a user to the database
 func handlerRegister(st *state, cmd command) error {
 	if len(cmd.Arguments) == 0 {
-		return errors.New("register requires a username")
+		return errors.New("usage: cmd register <username>")
 	}
 	user, err := st.db.CreateUser(context.Background(), database.CreateUserParams{
 		ID:        uuid.New(),
