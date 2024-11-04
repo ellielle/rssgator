@@ -53,6 +53,7 @@ func main() {
 	coms.register("feeds", handlerGetFeeds)
 	coms.register("follow", middlewareLoggedIn(handlerAddFollow))
 	coms.register("following", middlewareLoggedIn(handlerFollowing))
+	coms.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 
 	cmdName := os.Args[1]
 	cmdArgs := os.Args[2:]
