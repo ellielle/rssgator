@@ -50,7 +50,7 @@ func handlerAggregate(st *state, cmd command) error {
 func handlerAddFeed(st *state, cmd command, user database.User) error {
 	// Arguments[0] is the name of the feed, Arguments[1] is the URL of the feed
 	if len(cmd.Arguments) < 2 {
-		fmt.Println("addfeed requires a name and a URL")
+		fmt.Println("usage: cli addfeed <name> <url>")
 	}
 	user, err := st.db.GetUserByName(context.Background(), st.cfg.CurrentUserName)
 	if err != nil {
