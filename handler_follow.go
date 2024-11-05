@@ -14,7 +14,7 @@ import (
 // handlerAddFollow adds a followed feed to a logged in user
 func handlerAddFollow(st *state, cmd command, user database.User) error {
 	if len(cmd.Arguments) < 1 {
-		fmt.Println("usage: cmd follow <url>")
+		fmt.Println("usage: cli follow [url]")
 	}
 	user, err := getUserByName(st)
 	if err != nil {
@@ -63,20 +63,28 @@ func handlerFollowing(st *state, cmd command, user database.User) error {
 // handlerUnfollow removes a followed feed by URL and user
 func handlerUnfollow(st *state, cmd command, user database.User) error {
 	if len(cmd.Arguments) == 0 {
-		return errors.New("usage: cmd unfollow <url>")
+		return errors.New("usage: cli unfollow [url]")
 	}
 	user, err := getUserByName(st)
 	if err != nil {
 		return err
 	}
+	feed, err := st.db.GetFeedByUrl(context.Background(), cmd.Arguments[0])
+	if err != nil {
+		return errors.New("unable to find feed")
+	}
 	err = st.db.DeleteFollowByUser(context.Background(), database.DeleteFollowByUserParams{
 		UserID: user.ID,
-		Url:    "",
+		FeedID: feed.ID,
 	})
+	if err != nil {
+		return errors.New(err.Error())
+	}
 	return nil
 
 }
 
+// getUserByName looks a user up by name, and returns a database.User
 func getUserByName(st *state) (database.User, error) {
 	user, err := st.db.GetUserByName(context.Background(), st.cfg.CurrentUserName)
 	if err != nil {
