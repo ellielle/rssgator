@@ -16,7 +16,7 @@ import (
 // handlerLogin handles the login command
 // will log a user in if they have been registered
 func handlerLogin(st *state, cmd command) error {
-	if len(cmd.Arguments) == 0 {
+	if len(cmd.Arguments) < 1 {
 		return errors.New("usage: cli login [username]")
 	}
 
@@ -35,7 +35,7 @@ func handlerLogin(st *state, cmd command) error {
 // handlerRegister handles the register command
 // adds a user to the database
 func handlerRegister(st *state, cmd command) error {
-	if len(cmd.Arguments) == 0 {
+	if len(cmd.Arguments) < 1 {
 		return errors.New("usage: cli register [username]")
 	}
 	user, err := st.db.CreateUser(context.Background(), database.CreateUserParams{
