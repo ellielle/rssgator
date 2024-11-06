@@ -14,7 +14,7 @@ import (
 // handlerAddFollow adds a followed feed to a logged in user
 func handlerAddFollow(st *state, cmd command, user database.User) error {
 	if len(cmd.Arguments) < 1 {
-		fmt.Println("usage: cli follow [url]")
+		return errors.New("usage: cli follow [url]")
 	}
 	user, err := getUserByName(st)
 	if err != nil {
@@ -35,7 +35,7 @@ func handlerAddFollow(st *state, cmd command, user database.User) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Feed follow created:")
+	fmt.Println("Feed follow created")
 	return nil
 }
 

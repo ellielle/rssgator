@@ -21,8 +21,7 @@ func handlerLogin(st *state, cmd command) error {
 	// search for the user in the database, return an error if they don't exist
 	user, err := st.db.GetUserByName(context.Background(), cmd.Arguments[0])
 	if err != nil {
-		fmt.Println("user does not exist")
-		os.Exit(1)
+		return errors.New("user does not exist")
 	}
 	st.cfg.SetUser(user.Name)
 	fmt.Printf("user has been set to %s.\n", user.Name)
