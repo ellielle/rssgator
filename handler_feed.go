@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -33,18 +34,15 @@ type RSSItem struct {
 
 // handlerAggregate fetches a feed and unescapes the feed string
 func handlerAggregate(st *state, cmd command, user database.User) error {
-	nextFeed, err := st.db.GetNextFeedFetch(context.Background())
+	if len(cmd.Arguments) < 1 {
+		return errors.New("usage: cli agg [time between requests](s/m/h)")
+	}
+	timeBetween, err := time.ParseDuration(cmd.Arguments[0])
 	if err != nil {
-		return errors.New("unable to get next feed from list")
+		return errors.New("unable to parse duration, please use the format #s, #m, or #h")
 	}
-	feed, err := fetchFeed(context.Background(), nextFeed.Url)
-	if err != nil {
-		return errors.New("unable to fetch feed")
-	}
-	unescapeData(feed)
-	for _, item := range feed.Channel.Item {
-		fmt.Println(item.Title)
-	}
+	fmt.Printf("collecting feeds every %v\n", timeBetween)
+	scrapeFeeds(st, timeBetween)
 	return nil
 }
 
@@ -52,7 +50,7 @@ func handlerAggregate(st *state, cmd command, user database.User) error {
 func handlerAddFeed(st *state, cmd command, user database.User) error {
 	// Arguments[0] is the name of the feed, Arguments[1] is the URL of the feed
 	if len(cmd.Arguments) < 2 {
-		fmt.Println("usage: cli addfeed <name> [url]")
+		return errors.New("usage: cli addfeed <name> [url]")
 	}
 	user, err := st.db.GetUserByName(context.Background(), st.cfg.CurrentUserName)
 	if err != nil {
@@ -133,12 +131,36 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	return feed, nil
 }
 
-func scrapeFeeds(st *state, cmd command) error {
-	nextFeed, err := st.db.GetNextFeedFetch(context.Background())
+// scrapeFeeds gets updated feed data for all stored feeds, at `duration` intervals
+func scrapeFeeds(st *state, duration time.Duration) error {
+	ticker := time.NewTicker(duration)
+	feedList, err := st.db.GetFeeds(context.Background())
 	if err != nil {
-		return errors.New("unable to fetch next feed")
+		return errors.New("unable to retrieve feed list")
 	}
-	fmt.Println(nextFeed.Url)
-
-	return nil
+	for ; ; <-ticker.C {
+		for range feedList {
+			nextFeed, err := st.db.GetNextFeedFetch(context.Background())
+			if err != nil {
+				return errors.New("unable to get next feed from list")
+			}
+			feed, err := fetchFeed(context.Background(), nextFeed.Url)
+			if err != nil {
+				return errors.New("unable to fetch feed")
+			}
+			st.db.MarkFeedFetched(context.Background(), database.MarkFeedFetchedParams{
+				ID:        nextFeed.ID,
+				UpdatedAt: time.Now(),
+				LastFetchedAt: sql.NullTime{
+					Time:  time.Now(),
+					Valid: true,
+				},
+			})
+			unescapeData(feed)
+			for _, item := range feed.Channel.Item {
+				fmt.Println(item.Title)
+			}
+			fmt.Println()
+		}
+	}
 }
