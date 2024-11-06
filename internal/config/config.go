@@ -14,8 +14,8 @@ type Config struct {
 
 const configFile = ".gatorconfig.json"
 
-// local database URI to initialize with
-const DBURL = "postgres://lily:snowmogchocobo@localhost:5432/gator?sslmode=disable"
+// local database URI placeholder, if a config file doesn't already exist
+const DBURL = "postgres://postgres:postgres@localhost:5432/gator?sslmode=disable"
 
 // Read opens the config file and parses the content
 // into a Config struct that is returned
@@ -27,7 +27,7 @@ func Read() (Config, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		createConfigFile()
-		fmt.Println("creating configuration, re-run the program")
+		fmt.Println("creating configuration in $HOME, edit database URI and re-run the program")
 		os.Exit(1)
 	}
 

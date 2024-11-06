@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -19,14 +18,12 @@ func handlerLogin(st *state, cmd command) error {
 	if len(cmd.Arguments) < 1 {
 		return errors.New("usage: cli login [username]")
 	}
-
 	// search for the user in the database, return an error if they don't exist
 	user, err := st.db.GetUserByName(context.Background(), cmd.Arguments[0])
 	if err != nil {
 		fmt.Println("user does not exist")
 		os.Exit(1)
 	}
-
 	st.cfg.SetUser(user.Name)
 	fmt.Printf("user has been set to %s.\n", user.Name)
 	return nil

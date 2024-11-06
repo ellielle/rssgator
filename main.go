@@ -48,9 +48,10 @@ func main() {
 	coms.register("register", handlerRegister)
 	coms.register("reset", handlerReset)
 	coms.register("users", handlerGetUsers)
-	coms.register("agg", handlerAggregate)
-	coms.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	coms.register("feeds", handlerGetFeeds)
+	// the following functions require being logged in
+	coms.register("agg", middlewareLoggedIn(handlerAggregate))
+	coms.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	coms.register("follow", middlewareLoggedIn(handlerAddFollow))
 	coms.register("following", middlewareLoggedIn(handlerFollowing))
 	coms.register("unfollow", middlewareLoggedIn(handlerUnfollow))

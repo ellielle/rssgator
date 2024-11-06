@@ -42,15 +42,15 @@ go run . <command> [args...]
 
 RSSGator accepts the following commands:
 
-- `login <username>`
-- `register <username>`
+- `login [username]`
+- `register [username]`
 - `users` - lists all users and indicates who is logged in currently
 - `feeds` - lists all feeds available to subscribe to
 
 The following commands require you to be logged in:
 
-- `addfeed <name> <url>` - adds a feed to the feed list, and follows it
-- `follow <url>` - adds a feed to your follow list
+- `addfeed [name] [url]` - adds a feed to the feed list, and follows it
+- `follow [url]` - adds a feed to your follow list
 - `following` - shows all feeds the user is following
-- `unfollow <url>` - removes a feed from your follow list
+- `unfollow [url]` - removes a feed from your follow list
 - `agg` - starts the server to fetch feeds on a given interval
