@@ -26,7 +26,7 @@ WHERE id = $1;
 
 -- name: MarkFeedFetched :exec
 UPDATE feeds
-SET updated_at = $2, last_fetched_at = $2
+SET updated_at = $2, last_fetched_at = $3
 WHERE id = $1;
 
 -- name: GetNextFeedFetch :one
