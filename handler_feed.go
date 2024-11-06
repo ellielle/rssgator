@@ -32,17 +32,19 @@ type RSSItem struct {
 }
 
 // handlerAggregate fetches a feed and unescapes the feed string
-func handlerAggregate(st *state, cmd command) error {
-	//  if len(cmd.Arguments) == 0 {
-	//  	fmt.Println("agg requires a URL as an argument")
-	//  	os.Exit(1)
-	//  }
-	feed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+func handlerAggregate(st *state, cmd command, user database.User) error {
+	nextFeed, err := st.db.GetNextFeedFetch(context.Background())
+	if err != nil {
+		return errors.New("unable to get next feed from list")
+	}
+	feed, err := fetchFeed(context.Background(), nextFeed.Url)
 	if err != nil {
 		return errors.New("unable to fetch feed")
 	}
 	unescapeData(feed)
-	fmt.Print(feed)
+	for _, item := range feed.Channel.Item {
+		fmt.Println(item.Title)
+	}
 	return nil
 }
 
@@ -129,4 +131,14 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	feed := &RSSFeed{}
 	xml.Unmarshal(data, &feed)
 	return feed, nil
+}
+
+func scrapeFeeds(st *state, cmd command) error {
+	nextFeed, err := st.db.GetNextFeedFetch(context.Background())
+	if err != nil {
+		return errors.New("unable to fetch next feed")
+	}
+	fmt.Println(nextFeed.Url)
+
+	return nil
 }
