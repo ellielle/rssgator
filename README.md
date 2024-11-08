@@ -54,3 +54,4 @@ The following commands require you to be logged in:
 - `following` - shows all feeds the user is following
 - `unfollow [url]` - removes a feed from your follow list
 - `agg` - starts the server to fetch feeds on a given interval
+- `browse` - browse aggregated posts
