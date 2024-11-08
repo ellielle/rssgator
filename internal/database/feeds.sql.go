@@ -7,7 +7,6 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -133,7 +132,8 @@ func (q *Queries) GetFeeds(ctx context.Context) ([]Feed, error) {
 
 const getNextFeedFetch = `-- name: GetNextFeedFetch :one
 SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds
-ORDER BY last_fetched_at NULLS FIRST
+ORDER BY last_fetched_at ASC NULLS FIRST
+LIMIT 1
 `
 
 func (q *Queries) GetNextFeedFetch(ctx context.Context) (Feed, error) {
@@ -165,17 +165,12 @@ func (q *Queries) GetUserCreatedFeed(ctx context.Context, id uuid.UUID) (string,
 
 const markFeedFetched = `-- name: MarkFeedFetched :exec
 UPDATE feeds
-SET updated_at = $2, last_fetched_at = $3
+SET updated_at = NOW(), last_fetched_at = NOW() 
 WHERE id = $1
+RETURNING id, created_at, updated_at, name, url, user_id, last_fetched_at
 `
 
-type MarkFeedFetchedParams struct {
-	ID            uuid.UUID
-	UpdatedAt     time.Time
-	LastFetchedAt sql.NullTime
-}
-
-func (q *Queries) MarkFeedFetched(ctx context.Context, arg MarkFeedFetchedParams) error {
-	_, err := q.db.ExecContext(ctx, markFeedFetched, arg.ID, arg.UpdatedAt, arg.LastFetchedAt)
+func (q *Queries) MarkFeedFetched(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, markFeedFetched, id)
 	return err
 }
