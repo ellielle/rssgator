@@ -26,9 +26,11 @@ WHERE id = $1;
 
 -- name: MarkFeedFetched :exec
 UPDATE feeds
-SET updated_at = $2, last_fetched_at = $3
-WHERE id = $1;
+SET updated_at = NOW(), last_fetched_at = NOW() 
+WHERE id = $1
+RETURNING *;
 
 -- name: GetNextFeedFetch :one
 SELECT * FROM feeds
-ORDER BY last_fetched_at NULLS FIRST;
+ORDER BY last_fetched_at ASC NULLS FIRST
+LIMIT 1;

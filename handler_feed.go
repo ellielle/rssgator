@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -30,20 +29,6 @@ type RSSItem struct {
 	Link        string `xml:"link"`
 	Description string `xml:"description"`
 	PubDate     string `xml:"pubDate"`
-}
-
-// handlerAggregate fetches a feed and unescapes the feed string
-func handlerAggregate(st *state, cmd command, user database.User) error {
-	if len(cmd.Arguments) < 1 {
-		return errors.New("usage: cli agg [time between requests](s/m/h)")
-	}
-	timeBetween, err := time.ParseDuration(cmd.Arguments[0])
-	if err != nil {
-		return errors.New("unable to parse duration, please use the format #s, #m, or #h")
-	}
-	fmt.Printf("collecting feeds every %v\n", timeBetween)
-	scrapeFeeds(st, timeBetween)
-	return nil
 }
 
 // handlerAddFeed adds a feed to a user's follow list
@@ -94,6 +79,7 @@ func handlerGetFeeds(st *state, cmd command) error {
 		fmt.Println(feed.Name)
 		fmt.Println(feed.Url)
 		fmt.Println(user)
+		fmt.Println()
 	}
 	return nil
 }
@@ -129,38 +115,4 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	feed := &RSSFeed{}
 	xml.Unmarshal(data, &feed)
 	return feed, nil
-}
-
-// scrapeFeeds gets updated feed data for all stored feeds, at `duration` intervals
-func scrapeFeeds(st *state, duration time.Duration) error {
-	ticker := time.NewTicker(duration)
-	feedList, err := st.db.GetFeeds(context.Background())
-	if err != nil {
-		return errors.New("unable to retrieve feed list")
-	}
-	for ; ; <-ticker.C {
-		for range feedList {
-			nextFeed, err := st.db.GetNextFeedFetch(context.Background())
-			if err != nil {
-				return errors.New("unable to get next feed from list")
-			}
-			feed, err := fetchFeed(context.Background(), nextFeed.Url)
-			if err != nil {
-				return errors.New("unable to fetch feed")
-			}
-			st.db.MarkFeedFetched(context.Background(), database.MarkFeedFetchedParams{
-				ID:        nextFeed.ID,
-				UpdatedAt: time.Now(),
-				LastFetchedAt: sql.NullTime{
-					Time:  time.Now(),
-					Valid: true,
-				},
-			})
-			unescapeData(feed)
-			for _, item := range feed.Channel.Item {
-				fmt.Println(item.Title)
-			}
-			fmt.Println()
-		}
-	}
 }
