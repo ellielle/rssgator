@@ -21,13 +21,9 @@ func handlerBrowsePosts(st *state, cmd command, user database.User) error {
 		UserID: user.ID,
 		Limit:  int32(limit),
 	})
-	fmt.Printf("POSTS: %v\n", posts)
 	if err != nil {
 		return fmt.Errorf("couldn't get posts for user: %w", err)
 	}
-	// TODO : pick up here
-	// look at getpostsforuser query too, it's coming up empty
-	// look at create post query
 	fmt.Printf("found %d posts for user %s:\n", len(posts), user.Name)
 	for _, p := range posts {
 		fmt.Printf("%s from %s\n", p.PublishedAt.Time.Format("Mon Jan 2"), p.FeedName)
